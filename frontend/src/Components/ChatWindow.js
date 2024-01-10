@@ -6,11 +6,11 @@ export class ChatWindow extends Component{
   static displayName = ChatWindow.name;
   constructor(props){
     super(props)
-    this.state = {messages:[], input:'', chatId:''}    
+    this.state = {messages:[], input:'', chatId:'', awaitingServer: true}    
   }
 
-  componentDidMount(){
-    this.start();
+  async componentDidMount(){    
+    await this.start();
   }
 
   sendMessage = async () => {
@@ -25,9 +25,15 @@ export class ChatWindow extends Component{
   }
 
   start = async () => {
-    const response = await StartChat();
-    const msg = {message:response.message, userType: 'bot'};
-    this.setState({messages:[msg], input:'', chatId: response.chatId, messagePending: false})
+    try{
+      const response = await StartChat();
+      const msg = {message:response.message, userType: 'bot'};
+      this.setState({messages:[msg], input:'', chatId: response.chatId, messagePending: false, awaitingServer: false})
+    }
+    catch(e){
+      this.setState({messages:[], input:'', chatId:'', messagePending:false, awaitingServer: true})
+      setTimeout(this.start, 5000);
+    }    
   }
 
   handleKeyPress = (event)=>{
@@ -37,6 +43,14 @@ export class ChatWindow extends Component{
   };
 
   render(){
+    if(this.state.awaitingServer){
+      return(
+        <div style={{display:'flex', justifyContent:'center', alignItems:'center', height: '100vh'}}>
+          <span>Awaiting Server to start up on {process.env.REACT_APP_BACKEND_URI}...</span>
+        </div>
+      )
+    }
+
     return(
     <div style={{display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', backgroundColor: 'darkgray'}}>
       <div style={{ flexGrow:1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column' }}>
