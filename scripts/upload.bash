@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENDPOINT_URL=http://localhost:5228/chat/uploadDoc
+ENDPOINT_URL=http://localhost:5228/documents/upload
 
 if [[ ! -z "$NUM_DOCUMENTS_TO_UPLOAD" ]] && [[ "$NUM_DOCUMENTS_TO_UPLOAD" =~ ^[0-9]+$ ]]; then
     limit=$NUM_DOCUMENTS_TO_UPLOAD

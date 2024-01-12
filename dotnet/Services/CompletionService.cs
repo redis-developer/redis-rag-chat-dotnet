@@ -11,18 +11,9 @@ public class CompletionService : ICompletionService
     private readonly IChatMessageService _chatMessageService;
     private readonly QueryConfiguration _queryConfiguration;
     private readonly Kernel _kernel;
+    private readonly IConfiguration _configuration;
 
-    private static readonly string SystemPrompt = """
-This is a chat between an intellegent AI bot named Redis Beer recommender and one participant.
-The 
-The AI was trained on data though 2021, and is not aware of events that occured since then. It also
-is unable access data on the internet so it should not claim that it will look something up. Try to be concise with
-your answers though that's not required. Knowledge cutoff: {{$knowledgeCutoff}} / Current date: {{TimePlugin.Now}}.
-
-Either Return [silence] or provide a response to the last message. ONLY PROVIDE a response if the last message WAS
-ADDRESSED TO THE 'BOT'. If it appear the last message was not for you, send [silence] as the bot response.
-If the topic digresses from beers politely decline to answer and recenter the discussion on beer 
-""";
+    private string SystemPrompt => _configuration["SystemPrompt"]!; 
 
 
     private const string ChatSectionPrompt = """
@@ -37,19 +28,20 @@ The following are relevant memories to the question asked that you may use in yo
     private const string BotLine = "bot:";
     private const string MemoryLine = "memory:";
 
-    private static readonly int SystemPromptTokenCount = TokenUtil.TokenCount(SystemPrompt);
+    private int SystemPromptTokenCount => TokenUtil.TokenCount(SystemPrompt);
     private static readonly int ChatSectionPromptTokenCount = TokenUtil.TokenCount(ChatSectionPrompt);
     private static readonly int MemorySectionPromptTokenCount = TokenUtil.TokenCount(MemorySectionPrompt);
     private static readonly int UserLineTokenCount = TokenUtil.TokenCount(UserLine);
     private static readonly int BotLineTokenCount = TokenUtil.TokenCount(BotLine);
     private static readonly int MemoryLineTokenCount = TokenUtil.TokenCount(MemoryLine);
 
-    public CompletionService(IKernelMemory kernelMemory, IChatMessageService chatMessageService, QueryConfiguration queryConfiguration, Kernel kernel)
+    public CompletionService(IKernelMemory kernelMemory, IChatMessageService chatMessageService, QueryConfiguration queryConfiguration, Kernel kernel, IConfiguration configuration)
     {
         _kernelMemory = kernelMemory;
         _chatMessageService = chatMessageService;
         _queryConfiguration = queryConfiguration;
         _kernel = kernel;
+        _configuration = configuration;
     }
 
     public async Task<ChatMessage> GetLLMResponse(ChatMessage currentMessage, string chatId)

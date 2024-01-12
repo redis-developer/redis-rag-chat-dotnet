@@ -60,7 +60,8 @@ builder.Services.AddSingleton<ICompletionService>(sp=>
         sp.GetService<IKernelMemory>()!, 
         sp.GetService<IChatMessageService>()!,
         sp.GetService<QueryConfiguration>()!,
-        sp.GetService<Kernel>()!));
+        sp.GetService<Kernel>()!, 
+        sp.GetService<IConfiguration>()!));
 builder.Services.AddScoped(sp => new MemoryService(null, sp.GetService<ISearchClient>()!));
 builder.Services.AddOpenAIChatCompletion(builder.Configuration["OpenAICompletionModelId"]!, builder.Configuration["OpenAIApiKey"]!);
 // builder.Services.AddCorsPolicy(builder.Configuration);
@@ -74,9 +75,8 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
 var kmBuilder = new KernelMemoryBuilder();
 
 var memoryService = kmBuilder
-    .WithOpenAITextGeneration(openAiConfig)
-    // .WithOpenAIDefaults(builder.Configuration["OpenAIApiKey"]!)
-    .WithCustomEmbeddingGenerator(new AllMiniLml6V2EmbeddingGenerator())
+    // .WithOpenAITextGeneration(openAiConfig)
+    .WithOpenAIDefaults(builder.Configuration["OpenAIApiKey"]!)
     .WithSimpleQueuesPipeline()
     .With(new TextPartitioningOptions
     {
@@ -86,7 +86,6 @@ var memoryService = kmBuilder
     .Build<MemoryServerless>();
 
 builder.Services.AddSingleton<IKernelMemory>(memoryService);
-builder.Services.AddHostedService<StartupService>();
 builder.Services.AddHostedService<IndexSetupService>();
 var app = builder.Build();
 

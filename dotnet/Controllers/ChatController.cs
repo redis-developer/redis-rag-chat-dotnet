@@ -10,25 +10,15 @@ namespace sk_webapi;
 [Route("[controller]")]
 public class ChatController : ControllerBase
 {
-    private static readonly string SystemPrompt =
-        "This is a chat between an intelligent AI bot named Redis and one participant. SK stands for Semantic Kernel, " +
-        "the AI platform used to build the bot. The AI was trained on data through 2021 and is not aware of events that " +
-        "have occurred since then. It also has no ability to access data on the Internet, so it should not claim that it can " +
-        "or say that it will go and look things up. Try to be concise with your answers, though it is not required. " +
-        "Knowledge cutoff: {{$knowledgeCutoff}} / Current date: {{TimePlugin.Now}}.\\n\\n Provide " +
-        "a response to the last message.";
-    
-    private readonly IChatCompletionService _chatCompletionService;
     private readonly IChatMessageService _chatMessageService;
     private readonly ICompletionService _completionService;
-    private readonly IKernelMemory _kernelMemory;
+    private readonly IConfiguration _configuration;
 
-    public ChatController(IChatCompletionService chatCompletionService, IKernelMemory kernelMemory, IChatMessageService chatMessageService, ICompletionService completionService)
+    public ChatController(IChatMessageService chatMessageService, ICompletionService completionService, IConfiguration configuration)
     {
-        _chatCompletionService = chatCompletionService;
-        _kernelMemory = kernelMemory;
         _chatMessageService = chatMessageService;
         _completionService = completionService;
+        _configuration = configuration;
     }
 
     [HttpPost("{chatId}")]
@@ -54,25 +44,10 @@ public class ChatController : ControllerBase
         {
             AuthorRole = AuthorRole.System,
             ChatId = Ulid.NewUlid().ToString(),
-            Message = "Hello! Welcome to beer chat! How can I help you?",
+            Message = _configuration["InitialMessage"],
             Timestamp = DateTimeOffset.Now
         };
         await _chatMessageService.AddMessageAsync(initialMessage);
         return Ok(initialMessage);
-    }
-
-    
-    [HttpPost("uploadDoc")]
-    public async Task<IActionResult> AddDocument(IFormFile file)
-    {
-        if (file.Length == 0)
-        {
-            return BadRequest("No file uploaded");
-        }
-
-        await using var fileStream = file.OpenReadStream();
-        var document = new Document().AddStream(file.FileName, fileStream);
-        var res = await _kernelMemory.ImportDocumentAsync(document);
-        return Ok(res);
     }
 }
