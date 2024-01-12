@@ -18,7 +18,7 @@ npm start
 #### dotnet backend
 
 ```
-dotnet run -f dotnet
+dotnet run --project dotnet
 ```
 
 ### Adding Documents to your Redis Database
