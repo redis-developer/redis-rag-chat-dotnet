@@ -17,6 +17,20 @@ npm start
 
 #### dotnet backend
 
+##### configuration
+
+To Configure your .NET app, add the following keys to your  appsettings.json file:
+
+| config var                       | Description                                 |
+|----------------------------------|---------------------------------------------|
+| OpenAICompletionModelId          | ID for the selected language model version. |
+| OpenAIApiKey                     | Key for API authentication and access.      |
+| OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model. |
+
+##### Running the dotnet backend
+
+You can run the .NET backend with the following command:
+
 ```
 dotnet run --project dotnet
 ```

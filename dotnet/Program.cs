@@ -30,13 +30,6 @@ builder.Services.AddSingleton<IRedisConnectionProvider>(new RedisConnectionProvi
 builder.Services.AddSingleton<IChatMessageService>(
     sp => new ChatMessageService(sp.GetService<IRedisConnectionProvider>()!));
 ILogger<OpenAITextGenerator>? log = null;
-OpenAIConfig openAiConfig = new OpenAIConfig()
-{
-    APIKey = builder.Configuration["OpenAIApiKey"]!,
-    EmbeddingModel = builder.Configuration["OpenAIEmbeddingGenerationModelId"]!,
-    TextModel = builder.Configuration["OpenAICompletionModelId"]!,
-    TextModelMaxTokenTotal = 4096
-};
 
 builder.Services.AddScoped<IMemoryDb>(sp  => 
     new RedisMemory(
@@ -64,7 +57,6 @@ builder.Services.AddSingleton<ICompletionService>(sp=>
         sp.GetService<IConfiguration>()!));
 builder.Services.AddScoped(sp => new MemoryService(null, sp.GetService<ISearchClient>()!));
 builder.Services.AddOpenAIChatCompletion(builder.Configuration["OpenAICompletionModelId"]!, builder.Configuration["OpenAIApiKey"]!);
-// builder.Services.AddCorsPolicy(builder.Configuration);
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(
     policy  =>
