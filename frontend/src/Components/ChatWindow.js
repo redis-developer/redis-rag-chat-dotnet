@@ -8,7 +8,7 @@ export class ChatWindow extends Component{
   static displayName = ChatWindow.name;
   constructor(props){
     super(props)
-    this.state = {messages:[], input:'', chatId:'', awaitingServer: true}  
+    this.state = {messages:[], input:'', chatId:'', awaitingServer: true, textAreaRows: 1}  
     this.fileRef = createRef();
   }
 
@@ -64,6 +64,25 @@ export class ChatWindow extends Component{
     }
   }
 
+  calculateRows = (text) => {
+    const lines = text.split('\n');
+    let numLines = 0;
+    if(lines){
+      lines.forEach(element => {
+        numLines += 1
+        numLines += element.length / 65      
+      });
+    }
+    
+    return Math.min(Math.max(numLines, 1), 5);
+  };
+
+  handleTextAreaChange = (e) => {
+    const value = e.target.value;
+    const rows = this.calculateRows(value);
+    this.setState({input:value, textAreaRows: rows});
+  } 
+
   render(){
     if(this.state.awaitingServer){
       return(
@@ -94,10 +113,10 @@ export class ChatWindow extends Component{
               {... (this.uiDisabled() ? {disabled:'disabled'} : {})}
               onKeyUp={this.handleKeyPress}
               as={'textarea'} 
-              rows={3} 
+              rows={this.state.textAreaRows} 
               cols={60}
               value={this.state.input}
-              onChange={(e) => this.setState({input:e.target.value})}
+              onChange={(e) => this.handleTextAreaChange(e)}
               style={{margin: '5px', flexGrow: 1, maxWidth: '600px', borderRadius: '10px', overflowWrap: 'break-word', overflowX: 'hidden', overflowY: 'auto'}}
               />
               <Button type='submit' style={{height: 'auto', alignSelf: 'stretch'}} disabled={this.uiDisabled() ? 'disabled':''} onClick={this.sendMessage}>Send</Button>
