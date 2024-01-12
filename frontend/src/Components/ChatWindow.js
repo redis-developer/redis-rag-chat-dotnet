@@ -1,12 +1,15 @@
-import React, {Component, useEffect, useState, usestate} from 'react';
+import React, {Component, useEffect, useState, usestate, createRef} from 'react';
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form';
 import {ChatBubble} from './ChatBubble';
-import { SendMessage, StartChat } from '../api';
+import { SendMessage, StartChat, UploadDocument } from '../api';
 
 export class ChatWindow extends Component{
   static displayName = ChatWindow.name;
   constructor(props){
     super(props)
-    this.state = {messages:[], input:'', chatId:'', awaitingServer: true}    
+    this.state = {messages:[], input:'', chatId:'', awaitingServer: true}  
+    this.fileRef = createRef();
   }
 
   async componentDidMount(){    
@@ -22,6 +25,14 @@ export class ChatWindow extends Component{
       this.setState({messagePending:false});
       this.setState({messages:[...this.state.messages, {message:response.message, userType:'bot'}]})
     }    
+  }
+
+  uiDisabled = () =>{
+    return this.state.messagePending || this.state.uploadPending;
+  }
+
+  handleDocumentUploadClick = async () =>{
+   this.fileRef.current.click(); 
   }
 
   start = async () => {
@@ -42,6 +53,17 @@ export class ChatWindow extends Component{
     }
   };
 
+  appendMessage = (msg) =>{
+    this.setState({messages:[...this.state.messages, msg]})
+  }
+
+  handleFileChanged = async (event) =>{
+    if(event.target.files[0]){
+      const uploadResult = await UploadDocument(event.target.files[0]);
+      this.appendMessage({message: uploadResult, userType: 'system'});
+    }
+  }
+
   render(){
     if(this.state.awaitingServer){
       return(
@@ -49,36 +71,46 @@ export class ChatWindow extends Component{
           <span>Awaiting Server to start up on {process.env.REACT_APP_BACKEND_URI}...</span>
         </div>
       )
-    }
+    }   
+
 
     return(
-    <div style={{display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', backgroundColor: 'darkgray'}}>
+    <div style={{display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', backgroundColor: '#525365'}}>
       <div style={{ flexGrow:1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column' }}>
         {this.state.messages.map((msg, index) => (
             <ChatBubble message={msg.message} userType={msg.userType}/>
         ))}
         {
-          this.state.messagePending ?
-            (<ChatBubble message="awaiting response" userType="system"/>):
-            (
-              <div/>
-            )   
-          
+          this.state.messagePending  && 
+            (<ChatBubble message="awaiting response" userType="system"/>)          
         }
       </div>
-      <div style={{display: 'flex', justifyContent: 'center', marginBottom: '10px'}}>
-        <textarea
-            disabled={this.state.messagePending?'disabled':''}
-            type="text"            
-            value={this.state.input}
-            onChange={(e) => this.setState({input:e.target.value})}
-            onKeyUp={this.handleKeyPress}
-            rows={3}
-            cols={30}
-            style={{margin: '5px', flexGrow: 1, maxWidth: '600px', borderRadius: '10px', overflowWrap: 'break-word', overflowX: 'hidden', overflowY: 'auto'}}
-        />
-        <button disabled={this.state.messagePending?'disabled':''} onClick={this.sendMessage}>Send</button>            
-      </div>          
+
+      <Form style={{display: 'flex', justifyContent: 'center', marginBottom: '10px'}}>
+        <Form.Group className='mb-2' > 
+          <Form.Label style={{color: 'white'}}>Ask a question</Form.Label>          
+          <div style={{display: 'flex', width: '100%'}}>
+            <Form.Control              
+              {... (this.uiDisabled() ? {disabled:'disabled'} : {})}
+              onKeyUp={this.handleKeyPress}
+              as={'textarea'} 
+              rows={3} 
+              cols={60}
+              value={this.state.input}
+              onChange={(e) => this.setState({input:e.target.value})}
+              style={{margin: '5px', flexGrow: 1, maxWidth: '600px', borderRadius: '10px', overflowWrap: 'break-word', overflowX: 'hidden', overflowY: 'auto'}}
+              />
+              <Button type='submit' style={{height: 'auto', alignSelf: 'stretch'}} disabled={this.uiDisabled() ? 'disabled':''} onClick={this.sendMessage}>Send</Button>
+              <div style={{height: 'auto', alignSelf: 'stretch', marginLeft: '5px'}}>
+                <input type='file' style={{display:'none'}} ref={this.fileRef} onChange={this.handleFileChanged}/>
+                <Button disabled={this.uiDisabled() ? 'disabled':''} onClick={this.handleDocumentUploadClick} type='button' style={{height: '100%'}} >Upload</Button>
+              </div>
+              
+          </div>
+          
+        </Form.Group>
+        
+      </Form>
     </div>
     );
   }

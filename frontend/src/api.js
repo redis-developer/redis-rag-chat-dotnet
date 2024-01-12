@@ -21,3 +21,23 @@ export const StartChat = async function(){
     })       
     return responseMessage.json();
 }
+
+export const UploadDocument = async function(file){
+    const form = new FormData();
+    form.append('file', file);
+    try{
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URI}/chat/uploadDoc`,
+        {
+            method:'POST',
+            body: form
+        })
+
+        if(response.status === 200){
+            return "Upload Completed Successfully";
+        }
+
+        return response.statusText;
+    } catch(e){
+        return e;
+    }
+}

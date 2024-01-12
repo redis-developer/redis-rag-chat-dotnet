@@ -62,10 +62,17 @@ public class ChatController : ControllerBase
     }
 
     
-    [HttpPost("addDoc")]
-    public async Task<IActionResult> AddDocument([FromBody] DocumentInsertionRequest docRequest)
+    [HttpPost("uploadDoc")]
+    public async Task<IActionResult> AddDocument(IFormFile file)
     {
-        var res = await _kernelMemory.ImportDocumentAsync(new Document().AddFile(docRequest.FilePath));
+        if (file.Length == 0)
+        {
+            return BadRequest("No file uploaded");
+        }
+
+        await using var fileStream = file.OpenReadStream();
+        var document = new Document().AddStream(file.FileName, fileStream);
+        var res = await _kernelMemory.ImportDocumentAsync(document);
         return Ok(res);
     }
 }

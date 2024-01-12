@@ -1,6 +1,7 @@
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
 using Microsoft.KernelMemory.AI.OpenAI;
+using Microsoft.KernelMemory.Configuration;
 using Microsoft.KernelMemory.Handlers;
 using Microsoft.KernelMemory.MemoryDb.Redis;
 using Microsoft.KernelMemory.MemoryStorage;
@@ -39,8 +40,8 @@ OpenAIConfig openAiConfig = new OpenAIConfig()
 
 builder.Services.AddScoped<IMemoryDb>(sp  => 
     new RedisMemory(
+        new RedisConfig(), 
         sp.GetService<IConnectionMultiplexer>()!,
-        new RedisIndexConfig(), 
         sp.GetService<ITextEmbeddingGenerator>()!)
 );
 builder.Services.AddScoped<ISearchClient>(sp => new SearchClient(sp.GetService<IMemoryDb>()!, sp.GetService<ITextGenerator>()!));
@@ -79,9 +80,9 @@ var memoryService = kmBuilder
     .WithSimpleQueuesPipeline()
     .With(new TextPartitioningOptions
     {
+        MaxTokensPerLine = 255,
         MaxTokensPerParagraph = 255
-    })
-    .WithRedis("localhost", new RedisIndexConfig())
+    }).WithRedisMemoryDb(new RedisConfig(){ConnectionString = "localhost"})
     .Build<MemoryServerless>();
 
 builder.Services.AddSingleton<IKernelMemory>(memoryService);
