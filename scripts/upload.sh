@@ -1,12 +1,29 @@
-#!/bin/bash
+#!/bin/sh
 
 ENDPOINT_URL=http://localhost:5228/documents/upload
 
-if [[ ! -z "$NUM_DOCUMENTS_TO_UPLOAD" ]] && [[ "$NUM_DOCUMENTS_TO_UPLOAD" =~ ^[0-9]+$ ]]; then
-    limit=$NUM_DOCUMENTS_TO_UPLOAD
-else
-    limit=-1
+limit=-1
+
+if [[ ! -d "$1" ]]; then
+  echo "Error: The provided directory was not a directory: $1." >&2
+  exit 1
 fi
+
+DATA_DIR=$1
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        url)
+            ENDPOINT_URL="$2"
+            shift # Move past the value
+            ;;    
+        limit)
+            limit=$2
+            shift
+            ;;
+    esac
+    shift # Move to the next argument
+done
 
 counter=0
 
@@ -15,8 +32,8 @@ do
   if [ -f "$file" ]; then
     let counter=counter+1
     echo "uploading $file..."
-    curl -F "file=@$file" $ENDPOINT_URL
-    echo "Done uploading $file"
+    curl -F "file=@$file" $ENDPOINT_URL > /dev/null 2>&1
+    # echo "Done uploading $file"
 
     if [ ! -r "$file" ]; then
         echo "Cannot read file $file, skipping..."
