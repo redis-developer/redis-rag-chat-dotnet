@@ -5,4 +5,5 @@ public interface IChatMessageService
     Task AddMessageAsync(ChatMessage message);
     Task<ChatMessage?> GetMessageAsync(string messageId);
     Task<IList<ChatMessage>> GetMessagesForChatAsync(string chatId);
+    Task<string> GetFormattedMessageHistoryAsync(string chatId);
 }

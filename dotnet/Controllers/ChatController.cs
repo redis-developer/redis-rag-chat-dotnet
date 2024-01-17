@@ -32,8 +32,10 @@ public class ChatController : ControllerBase
             AuthorRole = AuthorRole.User
         };
 
-        await _chatMessageService.AddMessageAsync(userChatMessage);
         var res = await _completionService.GetLLMResponse(userChatMessage, chatId);
+        
+        await _chatMessageService.AddMessageAsync(userChatMessage);
+        await _chatMessageService.AddMessageAsync(res);
         return Ok(new {message= res.Message});
     }
 
@@ -50,4 +52,6 @@ public class ChatController : ControllerBase
         await _chatMessageService.AddMessageAsync(initialMessage);
         return Ok(initialMessage);
     }
+    
+    
 }

@@ -22,6 +22,7 @@ builder.Services.AddSingleton<IRedisConnectionProvider>(new RedisConnectionProvi
 builder.Services.AddSingleton<IChatMessageService>(
     sp => new ChatMessageService(sp.GetService<IRedisConnectionProvider>()!));
 
+
 var kernelBuilder = Kernel.CreateBuilder();
 
 kernelBuilder.AddOpenAIChatCompletion(builder.Configuration["OpenAICompletionModelId"]!,
@@ -31,13 +32,9 @@ kernel.ImportPluginFromObject(new TimePlugin(), nameof(TimePlugin));
 
 
 builder.Services.AddSingleton(kernel);
-builder.Services.AddSingleton<ICompletionService>(sp=>
-    new CompletionService(
-        sp.GetService<IKernelMemory>()!, 
-        sp.GetService<IChatMessageService>()!,
-        sp.GetService<QueryConfiguration>()!,
-        sp.GetService<Kernel>()!, 
-        sp.GetService<IConfiguration>()!));
+builder.Services.AddSingleton<ICompletionService, CompletionService>();
+builder.Services.AddSingleton<ISummarizationService, SummarizationService>();
+builder.Services.AddSingleton<IUserIntentExtractionService, UserIntentExtractionService>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(
     policy  =>

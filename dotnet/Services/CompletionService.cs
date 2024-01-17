@@ -12,6 +12,7 @@ public class CompletionService : ICompletionService
     private readonly QueryConfiguration _queryConfiguration;
     private readonly Kernel _kernel;
     private readonly IConfiguration _configuration;
+    private readonly IUserIntentExtractionService _userIntentExtraction;
 
     private string SystemPrompt => _configuration["SystemPrompt"]!; 
 
@@ -35,19 +36,20 @@ The following are relevant memories to the question asked that you may use in yo
     private static readonly int BotLineTokenCount = TokenUtil.TokenCount(BotLine);
     private static readonly int MemoryLineTokenCount = TokenUtil.TokenCount(MemoryLine);
 
-    public CompletionService(IKernelMemory kernelMemory, IChatMessageService chatMessageService, QueryConfiguration queryConfiguration, Kernel kernel, IConfiguration configuration)
+    public CompletionService(IKernelMemory kernelMemory, IChatMessageService chatMessageService, QueryConfiguration queryConfiguration, Kernel kernel, IConfiguration configuration, IUserIntentExtractionService userIntentExtraction)
     {
         _kernelMemory = kernelMemory;
         _chatMessageService = chatMessageService;
         _queryConfiguration = queryConfiguration;
         _kernel = kernel;
         _configuration = configuration;
+        _userIntentExtraction = userIntentExtraction;
     }
 
     public async Task<ChatMessage> GetLLMResponse(ChatMessage currentMessage, string chatId)
     {
         var function = await CraftPrompt(currentMessage, chatId);
-
+        
         var res = await function.InvokeAsync(_kernel,
             new KernelArguments() { ["knowledgeCutoff"] = _queryConfiguration.KnowledgeCutoff });
         return new ChatMessage()
@@ -68,8 +70,10 @@ The following are relevant memories to the question asked that you may use in yo
         var chatHistoryBudget = (int)Math.Floor(_queryConfiguration.HistoryPercentage * remainingBudget);
         var ragBudget = (int)Math.Floor(_queryConfiguration.RagPercentage * remainingBudget);
 
+        var userIntent = await _userIntentExtraction.GetUserIntent(currentMessage.Message!, chatId);
+
         var priorMessages = (await _chatMessageService.GetMessagesForChatAsync(chatId)).Where(x=>x.Id != currentMessage.Id).OrderByDescending(x=>x.Timestamp);
-        var relevantDocuments = (await _kernelMemory.SearchAsync(currentMessage.Message!, limit: 5)).Results.OrderByDescending(x=>x.Partitions.First().Relevance);
+        var relevantDocuments = (await _kernelMemory.SearchAsync(userIntent, limit: 5)).Results.OrderByDescending(x=>x.Partitions.First().Relevance);
 
         sb.AppendLine(ChatSectionPrompt);
         foreach (var message in priorMessages)

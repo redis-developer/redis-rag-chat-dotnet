@@ -1,3 +1,5 @@
+using System.Text;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Redis.OM.Contracts;
 using Redis.OM.Searching;
 using Redis.OM;
@@ -6,6 +8,9 @@ namespace sk_webapi.Services;
 
 public class ChatMessageService : IChatMessageService
 {
+    private const string UserLine = "user:";
+    private const string BotLine = "bot:";
+    
     private readonly IRedisConnectionProvider _provider;
 
     public ChatMessageService(IRedisConnectionProvider provider)
@@ -21,4 +26,23 @@ public class ChatMessageService : IChatMessageService
     public Task<ChatMessage?> GetMessageAsync(string messageId) => Messages.FirstOrDefaultAsync(x => x.Id == messageId);
 
     public Task<IList<ChatMessage>> GetMessagesForChatAsync(string chatId) => Messages.Where(x => x.ChatId == chatId).ToListAsync();
+    public async Task<string> GetFormattedMessageHistoryAsync(string chatId)
+    {
+        var messages = await GetMessagesForChatAsync(chatId);
+        
+        var sb = new StringBuilder();
+        foreach (var message in messages)
+        {
+            if (message.AuthorRole == AuthorRole.User)
+            {
+                sb.AppendLine($"{UserLine} {message.Message}");
+            }
+            else
+            {
+                sb.AppendLine($"{BotLine} {message.Message}");
+            }
+        }
+
+        return sb.ToString();
+    }
 }
