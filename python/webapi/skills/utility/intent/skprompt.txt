@@ -1,0 +1,10 @@
+the following summary is the summary of a conversation between an AI chat bot and a user:
+
+{{$summary}}
+
+given this summary, and this most recent message from the user:
+
+{{$input}}
+
+please provide a brief description of the user's intent from the most recent message in a way that would be useful for
+as semantic search

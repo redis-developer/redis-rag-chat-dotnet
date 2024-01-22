@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "description": "Summarize the chat history",
+  "type": "completion",
+  "completion": {
+    "max_tokens": 1000,
+    "temperature": 0.0,
+    "top_p": 0.0,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0
+  },
+  "input": {
+    "parameters": [
+      {
+        "name": "memories",
+        "description": "memories the retriever pulled back.",
+        "defaultValue": ""
+      },
+      {
+        "name": "summary",
+        "description": "a summary of the chat history up to this point",
+        "defaultValue": ""
+      },
+      {
+        "name": "input",
+        "description": "the most recent user message",
+        "defaultValue": ""
+      }
+    ]
+  }
+}

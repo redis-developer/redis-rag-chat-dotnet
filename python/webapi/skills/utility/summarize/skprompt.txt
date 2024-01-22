@@ -1,0 +1,4 @@
+Given this chat history between an AI user and bot:
+{{$input}}
+
+Can you please provide a summary of the conversation thus far in two sentences?

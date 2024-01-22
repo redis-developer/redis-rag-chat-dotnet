@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ENDPOINT_URL=http://localhost:5228/documents/upload
+ENDPOINT_URL=http://localhost:8000/documents/upload
 
 limit=-1
 

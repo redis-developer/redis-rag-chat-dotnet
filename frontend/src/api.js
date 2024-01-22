@@ -25,8 +25,7 @@ export const StartChat = async function(){
 export const UploadDocument = async function(file){
     const form = new FormData();
     form.append('file', file);
-    try{
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URI}/chat/uploadDoc`,
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URI}/documents/upload`,
         {
             method:'POST',
             body: form
@@ -37,7 +36,4 @@ export const UploadDocument = async function(file){
         }
 
         return response.statusText;
-    } catch(e){
-        return e;
-    }
 }

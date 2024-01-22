@@ -59,8 +59,13 @@ export class ChatWindow extends Component{
 
   handleFileChanged = async (event) =>{
     if(event.target.files[0]){
-      const uploadResult = await UploadDocument(event.target.files[0]);
-      this.appendMessage({message: uploadResult, userType: 'system'});
+      try{
+        const uploadResult = await UploadDocument(event.target.files[0]);
+        this.appendMessage({message: uploadResult, userType: 'system'});
+      }
+      catch(e){
+        this.appendMessage({message: e.message, userType: 'system'})
+      }
     }
   }
 
