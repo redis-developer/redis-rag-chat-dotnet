@@ -35,6 +35,28 @@ You can run the .NET backend with the following command:
 dotnet run --project dotnet
 ```
 
+#### Python backend
+
+##### Configuration
+
+change directory into the `python/webapi` directory.
+
+run 
+
+```sh
+mv .env.sample .env
+```
+
+And change the `OPENAI_API_KEY` to your Open AI API key
+
+##### Running the python backend
+
+To run the app, now just run:
+
+```
+poetry start run
+```
+
 ### Adding Documents to your Redis Database
 
 To add documents to Redis, the backend must be started
