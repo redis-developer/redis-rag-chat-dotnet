@@ -31,12 +31,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 greeting = os.getenv("GREETING")
 api_key = os.getenv("OPENAI_API_KEY")
-kernel_memory_url = os.getenv("KERNEL_MEMORY_URL")
+redis_uri = os.getenv("REDIS_URI")
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
-redis_memory = RedisMemoryStore('redis://localhost:6379')
+
+redis_client = redis.from_url(redis_uri)
+redis_memory = RedisMemoryStore(redis_uri)
 
 oai_text_embedding = OpenAITextEmbedding(ai_model_id='text-embedding-ada-002', api_key=api_key)
 oai_chat_service = OpenAIChatCompletion(ai_model_id="gpt-3.5-turbo", api_key=api_key)
