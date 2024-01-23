@@ -1,17 +1,20 @@
 import datetime
-import uvicorn
-import semantic_kernel as sk
-from semantic_kernel.orchestration.context_variables import ContextVariables
 import os
-from fastapi import FastAPI, File, UploadFile
-from ulid import ULID
-from webapi.models import AuthorRole, Ask, ChatMessage
-from webapi.constants import CHAT_MESSAGE_INDEX_NAME
-from fastapi.middleware.cors import CORSMiddleware
-import redis
 import uuid
-import requests
-from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
+
+import redis
+import semantic_kernel as sk
+import uvicorn
+from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion, OpenAITextEmbedding
+from semantic_kernel.connectors.memory.redis import RedisMemoryStore
+from semantic_kernel.orchestration.context_variables import ContextVariables
+from ulid import ULID
+
+from webapi.constants import CHAT_MESSAGE_INDEX_NAME
+from webapi.models import AuthorRole, Ask, ChatMessage
+from webapi.text_extractor import extract_text_from_upload
 
 origins = [
     "http://localhost",
@@ -28,20 +31,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-kernel = sk.Kernel()
-
-
 greeting = os.getenv("GREETING")
-
 api_key = os.getenv("OPENAI_API_KEY")
-
 kernel_memory_url = os.getenv("KERNEL_MEMORY_URL")
 
 redis_client = redis.Redis(host='localhost', port=6379, db=0)
+redis_memory = RedisMemoryStore('redis://localhost:6379')
 
+oai_text_embedding = OpenAITextEmbedding(ai_model_id='text-embedding-ada-002', api_key=api_key)
 oai_chat_service = OpenAIChatCompletion(ai_model_id="gpt-3.5-turbo", api_key=api_key)
+
+kernel = sk.Kernel()
 kernel.add_chat_service(service=oai_chat_service, service_id='completion')
+kernel.add_text_embedding_generation_service("ada", service=oai_text_embedding)
+kernel.register_memory_store(memory_store=redis_memory)
 plugins_dir = "skills"
 utility_functions = kernel.import_semantic_skill_from_directory(plugins_dir, "utility")
 
@@ -116,42 +119,20 @@ async def get_bot_message(question: str, memories:str, summary: str, chat_id: st
         timestamp=int(datetime.datetime.now().timestamp()))
 
 
-def get_memories(question: str) -> str:
-    data = {
-        "index": "km-py",
-        "query": question,
-        "limit": 5
-    }
-
-    response = requests.post(f"{kernel_memory_url}/search", json=data)
-
-    if response.status_code == 200:
-        response_json = response.json()
-        memories = response_json.get('results',[])
-        res = ""
-        for memory in memories:
-            res += "memory:"
-            for partition in memory['partitions']:
-                res += partition['text']
-            res += '\n'
-        return res
-
-    raise Exception(response.text)
+async def get_memories(question: str) -> str:
+    memories = await kernel.memory.search_async("sk-memory", query=question, limit=5)
+    text = ""
+    for memory in memories:
+        text += memory.text
+        text += '\n'
+    return text
 
 
 @app.post("/documents/upload")
 async def upload_document(file: UploadFile = File(...)):
-    file_content = await file.read()
-
-    data = {
-        "index": "km-py",
-        "id": str(uuid.uuid4())
-    }
-    files = {'file': (file.filename, file_content, file.content_type)}
-
-    response = requests.post(f"{kernel_memory_url}/upload", files=files, data=data)
-    response.raise_for_status()
-    return {"status": response.status_code, "response_data": response.text}
+    text = await extract_text_from_upload(file)
+    await kernel.memory.save_information_async("sk-memory", text=text, id=str(uuid.uuid4()))
+    return {"status": 200, "response_data": "OK"}
 
 
 @app.post("/chat/{chat_id}")
@@ -167,7 +148,7 @@ async def chat(chat_id: str, ask: Ask):
 
     summary = await get_summary(chat_id)
     intent = await get_intent(summary, ask)
-    memories = get_memories(intent)
+    memories = await get_memories(intent)
     bot_response = await get_bot_message(question=ask.prompt, memories=memories, summary=summary, chat_id=chat_id)
 
     user_message.save(redis_client)

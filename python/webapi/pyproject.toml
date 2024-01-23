@@ -14,6 +14,7 @@ semantic-kernel = "^0.4.5.dev0"
 pydantic = ">2"
 requests = "^2.31.0"
 python-multipart = "^0.0.6"
+pypdf2 = "^3.0.1"
 
 [tool.poetry.scripts]
 start = "webapi.main:start"

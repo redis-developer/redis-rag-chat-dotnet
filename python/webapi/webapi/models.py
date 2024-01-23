@@ -1,16 +1,15 @@
-import datetime
+from enum import Enum
 
 import redis
+from pydantic import BaseModel
+from pydantic.types import UUID4
 from redis.commands.search.field import (
     TagField,
     NumericField,
     TextField
 )
-
 from redis.commands.search.indexDefinition import IndexDefinition
-from pydantic import BaseModel, Field
-from pydantic.types import UUID4
-from enum import Enum
+
 from webapi.constants import CHAT_MESSAGE_INDEX_NAME, CHAT_MESSAGE_KEY_PREFIX
 
 
