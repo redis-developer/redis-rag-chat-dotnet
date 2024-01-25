@@ -15,9 +15,7 @@ npm start
 
 ### Backend
 
-#### dotnet backend
-
-##### configuration
+#### configuration
 
 To Configure your .NET app, add the following keys to your  appsettings.json file:
 
@@ -27,34 +25,12 @@ To Configure your .NET app, add the following keys to your  appsettings.json fil
 | OpenAIApiKey                     | Key for API authentication and access.      |
 | OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model. |
 
-##### Running the dotnet backend
+### Running the dotnet backend
 
 You can run the .NET backend with the following command:
 
 ```
 dotnet run --project dotnet
-```
-
-#### Python backend
-
-##### Configuration
-
-change directory into the `python/webapi` directory.
-
-run 
-
-```sh
-mv .env.sample .env
-```
-
-And change the `OPENAI_API_KEY` to your Open AI API key
-
-##### Running the python backend
-
-To run the app, now just run:
-
-```
-poetry start run
 ```
 
 ### Adding Documents to your Redis Database
