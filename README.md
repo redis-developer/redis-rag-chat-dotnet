@@ -8,7 +8,7 @@ store in your Redis Database.
 ### Frontend
 
 ```
-cd frontend
+cd webapp
 npm install
 npm start
 ```
