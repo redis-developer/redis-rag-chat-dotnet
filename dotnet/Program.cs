@@ -44,13 +44,22 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
 
 var kmBuilder = new KernelMemoryBuilder();
 
-var memoryService = kmBuilder
-    .WithOpenAIDefaults(builder.Configuration["OpenAIApiKey"]!)
-    .WithSimpleQueuesPipeline()
-    .WithRedisMemoryDb(new RedisConfig(){ConnectionString = "localhost"})
-    .Build<MemoryServerless>();
+var kmEndpoint = builder.Configuration["KernelMemoryEndpoint"];
+if (!string.IsNullOrEmpty(kmEndpoint))
+{
+    builder.Services.AddSingleton<IKernelMemory>(new MemoryWebClient(kmEndpoint));
+}
+else
+{
+    var memoryService = kmBuilder
+        .WithOpenAIDefaults(builder.Configuration["OpenAIApiKey"]!)
+        .WithSimpleQueuesPipeline()
+        .WithRedisMemoryDb(new RedisConfig(){ConnectionString = "localhost"})
+        .Build<MemoryServerless>();
 
-builder.Services.AddSingleton<IKernelMemory>(memoryService);
+    builder.Services.AddSingleton<IKernelMemory>(memoryService);
+}
+
 builder.Services.AddHostedService<IndexSetupService>();
 var app = builder.Build();
 
