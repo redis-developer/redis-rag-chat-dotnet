@@ -25,13 +25,22 @@ npm start
 
 #### Configure it
 
-To Configure your .NET app, add the following keys to your  appsettings.json file:
+To Configure your .NET app, configure the following in  `dotnet/appsettings.json` file:
 
-| config var                       | Description                                 |
-|----------------------------------|---------------------------------------------|
-| OpenAICompletionModelId          | ID for the selected language model version. |
-| OpenAIApiKey                     | Key for API authentication and access.      |
-| OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model. |
+| config var                       | Description                                                                                |
+|----------------------------------|--------------------------------------------------------------------------------------------|
+| OpenAICompletionModelId          | ID for the selected language model version.                                                |
+| OpenAIApiKey                     | Key for API authentication and access.                                                     |
+| OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model.                                                |
+
+#### Run Kernel Memory as a Service (Optional)
+
+You can optionally run Kernel Memory as an external service, to do so:
+
+1. Run `cp kernel-memory/appsettings.Development.Template.json kernel-memory/appsettings.Development.json`
+2. Change the `ApiKey` setting in kernel-memory/appsettings.Development.json to your Open AI Api Key
+3. Run `docker-compose -f kernel-memory/docker-compose.yml up`
+4. In `dotnet/appsettings.json` set the `KernelMemoryEndpoint` parameter to `http://localhost:9001`
 
 ### Run it
 
