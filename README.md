@@ -5,10 +5,18 @@ For our example, the default chat type is a conversation with an intelligent age
 swapping that out with whatever other RAG operation you want is as simple as updating the SystemPrompt and changing out the documents you
 store in your Redis Database.
 
+## Clone this repo
+
+To clone this repo make sure you clone the whole repository with it's submodules:
+
+```
+git clone --recurse-submodules https://github.com/redis-developer/redis-rag-chat-dotnet
+```
+
 ### Frontend
 
 ```
-cd webapp
+cd frontend
 npm install
 npm start
 ```
