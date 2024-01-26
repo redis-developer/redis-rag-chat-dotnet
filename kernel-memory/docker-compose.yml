@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  redis-km:
+    image: "redis/redis-stack-server"
+    ports:
+      - "6379:6379"
+    container_name: redis-km
+  kernel-memory:
+    build:
+      context: .
+    links:
+      - redis-km
+    ports: 
+      - 9001:9001
