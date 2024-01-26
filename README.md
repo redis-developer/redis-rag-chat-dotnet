@@ -23,7 +23,7 @@ npm start
 
 ### Backend
 
-#### configuration
+#### Configure it
 
 To Configure your .NET app, add the following keys to your  appsettings.json file:
 
@@ -33,7 +33,7 @@ To Configure your .NET app, add the following keys to your  appsettings.json fil
 | OpenAIApiKey                     | Key for API authentication and access.      |
 | OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model. |
 
-### Running the dotnet backend
+### Run it
 
 You can run the .NET backend with the following command:
 
@@ -41,7 +41,7 @@ You can run the .NET backend with the following command:
 dotnet run --project dotnet
 ```
 
-### Adding Documents to your Redis Database
+### Adding Documents to Redis
 
 To add documents to Redis, the backend must be started
 
