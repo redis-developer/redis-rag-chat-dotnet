@@ -3,4 +3,4 @@ conversation up to this point, summarizing both the user and the bots inputs int
 Keep your response confined to information in the chat history.
 
 chat history: 
-{{$history}}
+{{ChatHistoryPlugin.GetChatHistory $chatId}}

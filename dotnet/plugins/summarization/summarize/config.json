@@ -12,8 +12,8 @@
 },
     "input_variables": [    
     {
-        "name": "history",
-        "description": "The chat history up to this point",
+        "name": "chatId",
+        "description": "The chat id to pull the chat history for",
         "default": ""
     }
 ]

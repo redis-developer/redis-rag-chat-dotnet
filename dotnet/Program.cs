@@ -16,24 +16,20 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 var muxer = ConnectionMultiplexer.Connect("localhost");
 
-builder.Services.AddSingleton(new QueryConfiguration());
 builder.Services.AddSingleton<IConnectionMultiplexer>(muxer);
 builder.Services.AddSingleton<IRedisConnectionProvider>(new RedisConnectionProvider(muxer));
 builder.Services.AddSingleton<IChatMessageService>(
     sp => new ChatMessageService(sp.GetService<IRedisConnectionProvider>()!));
 
 
-var kernelBuilder = Kernel.CreateBuilder();
 
+var kernelBuilder = builder.Services.AddKernel();
 kernelBuilder.AddOpenAIChatCompletion(builder.Configuration["OpenAICompletionModelId"]!,
     builder.Configuration["OpenAIApiKey"]!);
-var kernel = kernelBuilder.Build();
-kernel.ImportPluginFromObject(new TimePlugin(), nameof(TimePlugin));
-
-
-builder.Services.AddSingleton(kernel);
+kernelBuilder.Plugins.AddFromType<ChatHistoryPlugin>(nameof(ChatHistoryPlugin));
+kernelBuilder.Plugins.AddFromObject(new TimePlugin(), nameof(TimePlugin));
+kernelBuilder.Plugins.AddFromPromptDirectory(Path.Combine(Directory.GetCurrentDirectory(), "plugins", "summarization"));
 builder.Services.AddSingleton<ICompletionService, CompletionService>();
-builder.Services.AddSingleton<ISummarizationService, SummarizationService>();
 builder.Services.AddSingleton<IUserIntentExtractionService, UserIntentExtractionService>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(
@@ -42,23 +38,23 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
         policy.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
     }));
 
-var kmBuilder = new KernelMemoryBuilder();
-
 var kmEndpoint = builder.Configuration["KernelMemoryEndpoint"];
+IKernelMemory kernelMemory;
 if (!string.IsNullOrEmpty(kmEndpoint))
 {
-    builder.Services.AddSingleton<IKernelMemory>(new MemoryWebClient(kmEndpoint));
+    kernelMemory = new MemoryWebClient(kmEndpoint);
 }
 else
 {
-    var memoryService = kmBuilder
+    kernelMemory = new KernelMemoryBuilder()
         .WithOpenAIDefaults(builder.Configuration["OpenAIApiKey"]!)
         .WithSimpleQueuesPipeline()
         .WithRedisMemoryDb(new RedisConfig(){ConnectionString = "localhost"})
         .Build<MemoryServerless>();
-
-    builder.Services.AddSingleton<IKernelMemory>(memoryService);
 }
+
+builder.Services.AddSingleton(kernelMemory);
+kernelBuilder.Plugins.AddFromObject(new MemoryPlugin(kernelMemory), "memory");
 
 builder.Services.AddHostedService<IndexSetupService>();
 var app = builder.Build();

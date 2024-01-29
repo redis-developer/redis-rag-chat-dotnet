@@ -20,15 +20,11 @@ public class ChatMessageService : IChatMessageService
 
     private IRedisCollection<ChatMessage> Messages => _provider.RedisCollection<ChatMessage>();
 
-
     public Task AddMessageAsync(ChatMessage message) => Messages.InsertAsync(message);
 
-    public Task<ChatMessage?> GetMessageAsync(string messageId) => Messages.FirstOrDefaultAsync(x => x.Id == messageId);
-
-    public Task<IList<ChatMessage>> GetMessagesForChatAsync(string chatId) => Messages.Where(x => x.ChatId == chatId).ToListAsync();
     public async Task<string> GetFormattedMessageHistoryAsync(string chatId)
     {
-        var messages = await GetMessagesForChatAsync(chatId);
+        var messages = await Messages.Where(x => x.ChatId == chatId).ToListAsync();
         
         var sb = new StringBuilder();
         foreach (var message in messages)

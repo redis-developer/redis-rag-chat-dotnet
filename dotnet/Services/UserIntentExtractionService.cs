@@ -6,24 +6,20 @@ namespace sk_webapi.Services;
 
 public class UserIntentExtractionService : IUserIntentExtractionService
 {
-    private readonly ISummarizationService _summarizationService;
     private readonly Kernel _kernel;
 
-    public UserIntentExtractionService(Kernel kernel, ISummarizationService summarizationService)
+    public UserIntentExtractionService(Kernel kernel)
     {
         _kernel = kernel;
-        _summarizationService = summarizationService;
     }
 
 
     public async Task<string> GetUserIntent(string input, string chatId)
     {
-        var summary = await _summarizationService.Summarize(chatId);
-        
         var args = new KernelArguments()
         {
             ["input"] = input,
-            ["summary"] = summary
+            ["chatId"] = chatId
         }; 
         if (!_kernel.Plugins.TryGetPlugin("Intent", out var intentPlugin))
         {

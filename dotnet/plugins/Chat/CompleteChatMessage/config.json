@@ -12,13 +12,13 @@
   },
   "input_variables": [
     {
-      "name": "input",
-      "description": "The last message in the chat.",
+      "name": "systemPrompt",
+      "description": "The main prompt for the system.",
       "default": ""
     },
     {
-      "name": "chatId",
-      "description": "The chat id to pull the chat history for",
+      "name": "$intent",
+      "description": "The user intent for this chat message",
       "default": ""
     }
   ]
