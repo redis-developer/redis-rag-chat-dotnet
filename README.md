@@ -48,7 +48,7 @@ You can optionally run Kernel Memory as an external service, to do so:
 You can run the .NET backend with the following command:
 
 ```
-dotnet run --project dotnet
+dotnet run --project backend
 ```
 
 ### Adding Documents to Redis
