@@ -5,7 +5,7 @@ with our Python example to manage the ingestion and querying of memories into ou
 
 ## How to Run
 
-To Run Kernel Memory move make a copy of `appsettings.Development.Template.json` and rename it to `appsettings.Development.json`, then set the `APIKey` field in it to match your OpenAI API key. Then you can run it in docker with:
+To Run Kernel Memory move make a copy of `appsettings.Template.json` and rename it to `appsettings.json`, then set the `APIKey` field in it to match your OpenAI API key. Then you can run it in docker with:
 
 ```
 docker-compose build
