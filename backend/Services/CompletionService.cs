@@ -22,15 +22,9 @@ public class CompletionService : ICompletionService
     public async Task<ChatMessage> GetLLMResponse(ChatMessage currentMessage, string chatId)
     {
         var intent = await _userIntentExtraction.GetUserIntent(currentMessage.Message!, chatId);
-        
-        if (!_kernel.Plugins.TryGetPlugin("Chat", out var chatPlugin))
-        {
-            var dir = Path.Combine(Directory.GetCurrentDirectory(), "plugins", "Chat");
-            chatPlugin = _kernel.ImportPluginFromPromptDirectory(dir);
-        }
 
+        var chatPlugin = _kernel.Plugins["Chat"];
         var kernelArguments = new KernelArguments() { ["knowledgeCutoff"] = _knowledgeCutoff, ["SystemPrompt"] = _configuration["SystemPrompt"]!, ["Intent"] = intent };
-        
         var res = await _kernel.InvokeAsync(chatPlugin["CompleteChatMessage"], kernelArguments);
         return new ChatMessage()
         {

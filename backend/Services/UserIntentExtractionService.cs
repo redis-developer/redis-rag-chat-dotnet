@@ -20,12 +20,9 @@ public class UserIntentExtractionService : IUserIntentExtractionService
         {
             ["input"] = input,
             ["chatId"] = chatId
-        }; 
-        if (!_kernel.Plugins.TryGetPlugin("Intent", out var intentPlugin))
-        {
-            var dir = Path.Combine(Directory.GetCurrentDirectory(), "plugins", "Intent");
-            intentPlugin = _kernel.ImportPluginFromPromptDirectory(dir);
-        }
+        };
+
+        var intentPlugin = _kernel.Plugins["Intent"];
         
         var result = await _kernel.InvokeAsync(intentPlugin["IntentExtraction"], args);
         return result.ToString();

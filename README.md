@@ -32,18 +32,15 @@ To Configure your .NET app, configure the following in  `backend/appsettings.jso
 | OpenAICompletionModelId          | ID for the selected language model version.                                                            |
 | OpenAIApiKey                     | Key for API authentication and access.                                                                 |
 | OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model.                                                            |
-| KernelMemoryEndpoint             | Endpoint for Kernel Memory, delete this if you are not running Kernel Memory in a separate process.    |
+| KernelMemoryEndpoint             | Endpoint for Kernel Memory|
 
 #### Run Kernel Memory as a Service
-
-You can optionally run Kernel Memory as an external service, to do so:
 
 1. Run `cp kernel-memory/appsettings.Template.json kernel-memory/appsettings.json`
 2. Change the `ApiKey` setting in kernel-memory/appsettings.json to your Open AI Api Key
 3. Run `docker-compose -f kernel-memory/docker-compose.yml up`
-4. In `backend/appsettings.json` set the `KernelMemoryEndpoint` parameter to `http://localhost:9001`
 
-### Run it
+### Run the backend project
 
 You can run the .NET backend with the following command:
 
