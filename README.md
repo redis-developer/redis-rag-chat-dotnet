@@ -27,11 +27,12 @@ npm start
 
 To Configure your .NET app, configure the following in  `dotnet/appsettings.json` file:
 
-| config var                       | Description                                                                                |
-|----------------------------------|--------------------------------------------------------------------------------------------|
-| OpenAICompletionModelId          | ID for the selected language model version.                                                |
-| OpenAIApiKey                     | Key for API authentication and access.                                                     |
-| OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model.                                                |
+| config var                       | Description                                                                                            |
+|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| OpenAICompletionModelId          | ID for the selected language model version.                                                            |
+| OpenAIApiKey                     | Key for API authentication and access.                                                                 |
+| OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model.                                                            |
+| KernelMemoryEndpoint             | Endpoint for Kernel Memory, delete this if you are not running Kernel Memory in a separate process.    |
 
 #### Run Kernel Memory as a Service (Optional)
 
