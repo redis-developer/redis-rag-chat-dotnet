@@ -34,7 +34,7 @@ To Configure your .NET app, configure the following in  `dotnet/appsettings.json
 | OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model.                                                            |
 | KernelMemoryEndpoint             | Endpoint for Kernel Memory, delete this if you are not running Kernel Memory in a separate process.    |
 
-#### Run Kernel Memory as a Service (Optional)
+#### Run Kernel Memory as a Service
 
 You can optionally run Kernel Memory as an external service, to do so:
 
