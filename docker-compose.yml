@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  redis-km:
+    image: "redis/redis-stack-server"
+    ports:
+      - "6379:6379"
+    container_name: redis-km
+  kernel-memory:
+    build:
+      context: ./kernel-memory
+    environment:
+      - OpenAIApiKey=${OpenAIApiKey}
+    links:
+      - redis-km
+    ports: 
+      - 9001:9001
+  backend:    
+    ports:
+      - 8000:8000
+    build:
+      context: ./backend
+    environment:
+      - OpenAIApiKey=${OpenAIApiKey}
+    links:
+      - kernel-memory
+      - redis-km
+  frontend:
+    ports:
+      - 3000:3000
+    links:
+      - backend
+    build:
+      context: ./frontend
