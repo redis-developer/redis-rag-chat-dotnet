@@ -13,6 +13,20 @@ To clone this repo make sure you clone the whole repository with it's submodules
 git clone --recurse-submodules https://github.com/redis-developer/redis-rag-chat-dotnet
 ```
 
+## Run with Docker
+
+This app has a few different components, so to simplify standing it up, all you need to do is run:
+
+```sh
+docker compose build
+OpenAIApiKey=YOUR_OPEN_AI_KEY docker compose up
+```
+
+
+## Running the Individual Components
+
+You can also run the components individually:
+
 ### Frontend
 
 ```
@@ -32,13 +46,11 @@ To Configure your .NET app, configure the following in  `backend/appsettings.jso
 | OpenAICompletionModelId          | ID for the selected language model version.                                                            |
 | OpenAIApiKey                     | Key for API authentication and access.                                                                 |
 | OpenAIEmbeddingGenerationModelId | ID for the text embedding generation model.                                                            |
-| KernelMemoryEndpoint             | Endpoint for Kernel Memory|
+| KernelMemoryEndpoint             | Endpoint for Kernel Memory (most likely localhost:9001)
 
 #### Run Kernel Memory as a Service
 
-1. Run `cp kernel-memory/appsettings.Template.json kernel-memory/appsettings.json`
-2. Change the `ApiKey` setting in kernel-memory/appsettings.json to your Open AI Api Key
-3. Run `docker-compose -f kernel-memory/docker-compose.yml up`
+Run `OpenAIApiKey=YOUR_OPEN_AI_KEY docker-compose -f kernel-memory/docker-compose.yml up`
 
 ### Run the backend project
 
