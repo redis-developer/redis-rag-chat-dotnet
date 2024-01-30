@@ -1,3 +1,4 @@
 [submodule "common"]
 	path = common
 	url = https://github.com/redis-developer/redis-rag-chat-common
+	ignore = dirty
